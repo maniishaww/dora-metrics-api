@@ -1,0 +1,5 @@
+node_modules/
+coverage/
+dora.db
+.env
+*.log
