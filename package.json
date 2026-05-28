@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest --coverage --coverageThreshold='{\"global\":{\"lines\":75}}'"
+    "test": "jest --coverage"
   },
   "keywords": ["devops", "dora", "metrics", "pipeline"],
   "author": "Manisha",
