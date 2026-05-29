@@ -1,14 +1,11 @@
 pipeline {
     agent any
-
     environment {
         IMAGE_NAME = 'dora-metrics-api'
         IMAGE_TAG = "${BUILD_NUMBER}"
         SONAR_SCANNER_HOME = tool 'SonarScanner'
     }
-
     stages {
-
         stage('Build') {
             steps {
                 echo "Building DORA Metrics API - Build #${BUILD_NUMBER}"
@@ -17,7 +14,6 @@ pipeline {
                 echo "Docker image built and tagged successfully"
             }
         }
-
         stage('Test') {
             steps {
                 echo "Running automated tests with coverage..."
@@ -30,7 +26,6 @@ pipeline {
                 }
             }
         }
-
         stage('Code Quality') {
             steps {
                 echo "Running SonarQube code quality analysis..."
@@ -39,8 +34,7 @@ pipeline {
                 }
             }
         }
-
-stage('Security Scan') {
+        stage('Security Scan') {
             steps {
                 echo "Running security scan with npm audit..."
                 bat 'npm audit --audit-level=moderate || exit /b 0'
@@ -48,7 +42,6 @@ stage('Security Scan') {
                 echo "Security scan completed"
             }
         }
-      
         stage('Deploy to Staging') {
             steps {
                 echo "Deploying to staging environment..."
@@ -57,7 +50,6 @@ stage('Security Scan') {
                 echo "Application deployed to staging on port 3000"
             }
         }
-
         stage('Release') {
             steps {
                 echo "Promoting to production release..."
@@ -65,19 +57,16 @@ stage('Security Scan') {
                 echo "Released as prod-%IMAGE_TAG%"
             }
         }
-
         stage('Monitoring') {
             steps {
                 echo "Starting monitoring stack..."
                 bat 'docker-compose up -d prometheus grafana'
-                bat 'timeout /t 10 /nobreak'
                 echo "Prometheus available at http://localhost:9090"
                 echo "Grafana available at http://localhost:3001"
                 echo "Monitoring stack is live"
             }
         }
     }
-
     post {
         success {
             echo "Pipeline completed successfully!"
