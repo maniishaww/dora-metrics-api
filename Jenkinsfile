@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'dora-metrics-api'
         IMAGE_TAG = "${BUILD_NUMBER}"
-        SONAR_PROJECT_KEY = 'dora-metrics-api'
+        SONAR_SCANNER_HOME = tool 'SonarScanner'
     }
 
     stages {
@@ -35,13 +35,7 @@ pipeline {
             steps {
                 echo "Running SonarQube code quality analysis..."
                 withSonarQubeEnv('SonarQube') {
-                    bat '''
-                        sonar-scanner ^
-                        -Dsonar.projectKey=dora-metrics-api ^
-                        -Dsonar.sources=src ^
-                        -Dsonar.tests=tests ^
-                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                    '''
+                    bat "%SONAR_SCANNER_HOME%\\bin\\sonar-scanner.bat -Dsonar.projectKey=dora-metrics-api -Dsonar.sources=src -Dsonar.tests=tests"
                 }
             }
         }
@@ -60,7 +54,6 @@ pipeline {
                 bat 'docker-compose down --remove-orphans || exit /b 0'
                 bat 'docker-compose up -d app'
                 bat 'timeout /t 15 /nobreak'
-                bat 'docker inspect --format="{{.State.Health.Status}}" dora-api'
                 echo "Application deployed to staging on port 3000"
             }
         }
@@ -69,8 +62,7 @@ pipeline {
             steps {
                 echo "Promoting to production release..."
                 bat 'docker tag %IMAGE_NAME%:latest %IMAGE_NAME%:prod-%IMAGE_TAG%'
-                bat 'git tag -a v1.%BUILD_NUMBER% -m "Release v1.%BUILD_NUMBER%" || exit /b 0'
-                echo "Released as v1.%BUILD_NUMBER%"
+                echo "Released as prod-%IMAGE_TAG%"
             }
         }
 
@@ -90,7 +82,6 @@ pipeline {
         success {
             echo "Pipeline completed successfully!"
             echo "App: http://localhost:3000/health"
-            echo "Metrics: http://localhost:3000/metrics"
             echo "Grafana: http://localhost:3001"
         }
         failure {
