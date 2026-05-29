@@ -54,7 +54,7 @@ stage('Security Scan') {
                 echo "Deploying to staging environment..."
                 bat 'docker-compose down --remove-orphans || exit /b 0'
                 bat 'docker-compose up -d app'
-                bat 'timeout /t 15 /nobreak'
+                bat 'ping -n 16 127.0.0.1 > nul'
                 echo "Application deployed to staging on port 3000"
             }
         }
